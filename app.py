@@ -4,8 +4,10 @@ from dotenv import load_dotenv
 from flask import Flask, render_template, request, flash, redirect, session, g
 from flask_debugtoolbar import DebugToolbarExtension
 from sqlalchemy.exc import IntegrityError
+from werkzeug.exceptions import Unauthorized
 
-from forms import UserAddForm, LoginForm, MessageForm
+
+from forms import UserAddForm, LoginForm, MessageForm, CSRFProtectForm
 from models import db, connect_db, User, Message
 
 load_dotenv()
@@ -37,6 +39,7 @@ def add_user_to_g():
 
     if CURR_USER_KEY in session:
         g.user = User.query.get(session[CURR_USER_KEY])
+        g.csrf_form = CSRFProtectForm()
 
     else:
         g.user = None
@@ -53,6 +56,8 @@ def do_logout():
 
     if CURR_USER_KEY in session:
         del session[CURR_USER_KEY]
+
+
 
 
 @app.route('/signup', methods=["GET", "POST"])
@@ -119,6 +124,14 @@ def logout():
     """Handle logout of user and redirect to homepage."""
 
     form = g.csrf_form
+
+    if form.validate_on_submit():
+        do_logout()
+        return redirect ('/')
+    else:
+        raise Unauthorized()
+
+
 
     # IMPLEMENT THIS AND FIX BUG
     # DO NOT CHANGE METHOD ON ROUTE
@@ -322,8 +335,11 @@ def homepage():
                     .order_by(Message.timestamp.desc())
                     .limit(100)
                     .all())
+        form = g.csrf_form
+
+
         # breakpoint()
-        return render_template('home.html', messages=messages)
+        return render_template('home.html', messages=messages, form=form)
 
     else:
         return render_template('home-anon.html')
