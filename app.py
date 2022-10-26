@@ -58,8 +58,6 @@ def do_logout():
         del session[CURR_USER_KEY]
 
 
-
-
 @app.route('/signup', methods=["GET", "POST"])
 def signup():
     """Handle user signup.
@@ -127,11 +125,10 @@ def logout():
 
     if form.validate_on_submit():
         do_logout()
-        return redirect ('/')
+        flash('Successfully logged out!', "success")
+        return redirect('/login')
     else:
         raise Unauthorized()
-
-
 
     # IMPLEMENT THIS AND FIX BUG
     # DO NOT CHANGE METHOD ON ROUTE
@@ -158,7 +155,7 @@ def list_users():
     else:
         users = User.query.filter(User.username.like(f"%{search}%")).all()
 
-    return render_template('users/index.html', users=users)
+    return render_template('users/index.html', users=users, form=g.csrf_form)
 
 
 @app.get('/users/<int:user_id>')
@@ -171,7 +168,7 @@ def show_user(user_id):
 
     user = User.query.get_or_404(user_id)
 
-    return render_template('users/show.html', user=user)
+    return render_template('users/show.html', user=user, form=g.csrf_form)
 
 
 @app.get('/users/<int:user_id>/following')
@@ -183,7 +180,7 @@ def show_following(user_id):
         return redirect("/")
 
     user = User.query.get_or_404(user_id)
-    return render_template('users/following.html', user=user)
+    return render_template('users/following.html', user=user, form=g.csrf_form)
 
 
 @app.get('/users/<int:user_id>/followers')
@@ -195,7 +192,7 @@ def show_followers(user_id):
         return redirect("/")
 
     user = User.query.get_or_404(user_id)
-    return render_template('users/followers.html', user=user)
+    return render_template('users/followers.html', user=user, form=g.csrf_form)
 
 
 @app.post('/users/follow/<int:follow_id>')
@@ -335,11 +332,8 @@ def homepage():
                     .order_by(Message.timestamp.desc())
                     .limit(100)
                     .all())
-        form = g.csrf_form
 
-
-        # breakpoint()
-        return render_template('home.html', messages=messages, form=form)
+        return render_template('home.html', messages=messages, form=g.csrf_form)
 
     else:
         return render_template('home-anon.html')
