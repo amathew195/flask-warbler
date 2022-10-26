@@ -7,7 +7,7 @@ from sqlalchemy.exc import IntegrityError
 from werkzeug.exceptions import Unauthorized
 
 
-from forms import UserAddForm, LoginForm, MessageForm, CSRFProtectForm
+from forms import UserAddForm, LoginForm, MessageForm, CSRFProtectForm, UserEditForm
 from models import db, connect_db, User, Message
 
 load_dotenv()
@@ -233,9 +233,28 @@ def stop_following(follow_id):
 
 @app.route('/users/profile', methods=["GET", "POST"])
 def profile():
-    """Update profile for current user."""
+    """Update profile for current user.
+    Requires password verification. """
 
-    # IMPLEMENT THIS
+    user = g.user
+    form = UserEditForm(obj=user)
+
+    if form.validate_on_submit():
+
+        if user.authenticate(user.username, form.password.data):
+
+            user.username=form.username.data
+            user.email=form.email.data
+            user.image_url=form.image_url.data or User.image_url.default.arg
+            user.header_image_url=form.header_image_url.data or User.header_image_url.default.arg
+            user.bio=form.bio.data
+
+            db.session.commit()
+
+            return redirect(f'/users/{user.id}')
+
+
+    return render_template('/users/edit.html', form=form)
 
 
 @app.post('/users/delete')

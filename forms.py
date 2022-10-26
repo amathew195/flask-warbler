@@ -24,6 +24,20 @@ class LoginForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired()])
     password = PasswordField('Password', validators=[Length(min=6)])
 
-# Add to forms
+class UserEditForm(FlaskForm):
+    """Form for editing currently logged in user."""
+
+    username = StringField('Username', validators=[DataRequired()])
+    email = StringField('E-mail', validators=[DataRequired(), Email()])
+    image_url = StringField('(Optional) Image URL')
+    header_image_url = StringField('(Optional) Header Image')
+    bio = StringField('(Optional) Bio ')
+
+    # Password is used for verifying user's authenticity NOT for updating.
+    password = PasswordField('Password',
+        validators=[
+            DataRequired(),
+            Length(min=6)])
+
 class CSRFProtectForm(FlaskForm):
     """Form just for CSRF Protection."""
