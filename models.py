@@ -1,5 +1,6 @@
 """SQLAlchemy models for Warbler."""
 
+from collections import UserString
 from datetime import datetime
 
 from flask_bcrypt import Bcrypt
@@ -77,7 +78,7 @@ class User(db.Model):
 
     messages = db.relationship('Message', backref="user")
 
-    followers = db.relationship(  # user.follows or user.following
+    followers = db.relationship(  # user.followers or user.following
         "User",
         secondary="follows",
         primaryjoin=(Follows.user_being_followed_id == id),
@@ -180,3 +181,5 @@ def connect_db(app):
     app.app_context().push()
     db.app = app
     db.init_app(app)
+
+

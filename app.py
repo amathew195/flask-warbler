@@ -350,12 +350,12 @@ def homepage():
     - logged in: 100 most recent messages of followed_users
     """
 
-    # following = [u.id for u in g.user.following]
+    following = [u.id for u in g.user.following]
 
     if g.user:
         messages = (Message
                     .query
-                    # .filter(Message.user_id in following)
+                    .filter(Message.user_id.in_(following))
                     .order_by(Message.timestamp.desc())
                     .limit(100)
                     .all())
