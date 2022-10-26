@@ -37,7 +37,6 @@ connect_db(app)
 def add_user_to_g():
     """If we're logged in, add curr user to Flask global."""
 
-    g.csrf_form = CSRFProtectForm()
 
     if CURR_USER_KEY in session:
         g.user = User.query.get(session[CURR_USER_KEY])
@@ -45,7 +44,13 @@ def add_user_to_g():
     else:
         g.user = None
 
+@app.before_request
+def add_csrf_token_to_g():
+    """ Adds CSRF protection to forms. Can be accessed by adding hidden CSRF
+    tag to the HTML form. """
+
     g.csrf_form = CSRFProtectForm()
+
 
 
 def do_login(user):
@@ -246,7 +251,8 @@ def profile():
 
     if form.validate_on_submit():
 
-        if user.authenticate(user.username, form.password.data):
+        authenticated =  user.authenticate(user.username, form.password.data)
+        if authenticated:
 
             user.username = form.username.data
             user.email = form.email.data
