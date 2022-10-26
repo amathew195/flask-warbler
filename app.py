@@ -352,7 +352,7 @@ def homepage():
     - logged in: 100 most recent messages of followed_users
     """
 
-    following = [u.id for u in g.user.following]
+    following = [u.id for u in g.user.following] + [g.user.id]
 
     if g.user:
         messages = (Message

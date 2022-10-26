@@ -78,7 +78,7 @@ class User(db.Model):
 
     messages = db.relationship('Message', backref="user")
 
-    followers = db.relationship(  # user.followers or user.following
+    followers = db.relationship(
         "User",
         secondary="follows",
         primaryjoin=(Follows.user_being_followed_id == id),
