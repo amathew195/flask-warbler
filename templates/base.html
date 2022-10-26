@@ -49,7 +49,7 @@
           </a>
         </li>
         <li><a href="/messages/new">New Message</a></li>
-        <form id="logout_form" method="POST" action="/logout"> {{form.hidden_tag()}}
+        <form id="logout_form" method="POST" action="/logout"> {{g.csrf_form.hidden_tag()}}
           <a href="javascript:$('#logout_form').submit();">Logout</a>
         </form>
         {% endif %}

@@ -8,7 +8,7 @@ from werkzeug.exceptions import Unauthorized
 
 
 from forms import UserAddForm, LoginForm, MessageForm, CSRFProtectForm, UserEditForm
-from models import db, connect_db, User, Message
+from models import db, connect_db, User, Message, Follows
 
 load_dotenv()
 
@@ -37,9 +37,10 @@ connect_db(app)
 def add_user_to_g():
     """If we're logged in, add curr user to Flask global."""
 
+    g.csrf_form = CSRFProtectForm()
+
     if CURR_USER_KEY in session:
         g.user = User.query.get(session[CURR_USER_KEY])
-        g.csrf_form = CSRFProtectForm()
 
     else:
         g.user = None
@@ -121,9 +122,7 @@ def login():
 def logout():
     """Handle logout of user and redirect to homepage."""
 
-    form = g.csrf_form
-
-    if form.validate_on_submit():
+    if g.csrf_form.validate_on_submit():
         do_logout()
         flash('Successfully logged out!', "success")
         return redirect('/login')
@@ -155,7 +154,7 @@ def list_users():
     else:
         users = User.query.filter(User.username.like(f"%{search}%")).all()
 
-    return render_template('users/index.html', users=users, form=g.csrf_form)
+    return render_template('users/index.html', users=users)
 
 
 @app.get('/users/<int:user_id>')
@@ -168,7 +167,7 @@ def show_user(user_id):
 
     user = User.query.get_or_404(user_id)
 
-    return render_template('users/show.html', user=user, form=g.csrf_form)
+    return render_template('users/show.html', user=user)
 
 
 @app.get('/users/<int:user_id>/following')
@@ -180,7 +179,7 @@ def show_following(user_id):
         return redirect("/")
 
     user = User.query.get_or_404(user_id)
-    return render_template('users/following.html', user=user, form=g.csrf_form)
+    return render_template('users/following.html', user=user)
 
 
 @app.get('/users/<int:user_id>/followers')
@@ -236,6 +235,10 @@ def profile():
     """Update profile for current user.
     Requires password verification. """
 
+    if not g.user:
+        flash("Access unauthorized.", "danger")
+        return redirect("/")
+
     user = g.user
     form = UserEditForm(obj=user)
 
@@ -243,16 +246,18 @@ def profile():
 
         if user.authenticate(user.username, form.password.data):
 
-            user.username=form.username.data
-            user.email=form.email.data
-            user.image_url=form.image_url.data or User.image_url.default.arg
-            user.header_image_url=form.header_image_url.data or User.header_image_url.default.arg
-            user.bio=form.bio.data
+            user.username = form.username.data
+            user.email = form.email.data
+            user.image_url = form.image_url.data or User.image_url.default.arg
+            user.header_image_url = form.header_image_url.data or User.header_image_url.default.arg
+            user.bio = form.bio.data
 
             db.session.commit()
 
             return redirect(f'/users/{user.id}')
 
+        else:
+            flash("Incorrect password.", "danger")
 
     return render_template('/users/edit.html', form=form)
 
@@ -345,14 +350,17 @@ def homepage():
     - logged in: 100 most recent messages of followed_users
     """
 
+    # following = [u.id for u in g.user.following]
+
     if g.user:
         messages = (Message
                     .query
+                    # .filter(Message.user_id in following)
                     .order_by(Message.timestamp.desc())
                     .limit(100)
                     .all())
 
-        return render_template('home.html', messages=messages, form=g.csrf_form)
+        return render_template('home.html', messages=messages)
 
     else:
         return render_template('home-anon.html')
