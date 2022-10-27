@@ -172,6 +172,35 @@ class Message(db.Model):
     )
 
 
+class LikedMessage(db.Model):
+    """Connection of a user <-> liked messages."""
+
+    __tablename__ = 'liked_messages'
+
+    user_id = db.Column(
+        db.Integer,
+        db.ForeignKey('users.id', ondelete="cascade"),
+        primary_key=True,
+    )
+
+    message_id = db.Column(
+        db.Integer,
+        db.ForeignKey('messages.id', ondelete="cascade"),
+        primary_key=True,
+    )
+
+    user = db.relationship('User', backref='liked_messages')
+
+    def like_message(self, user_id, message_id):
+        liked_msg = LikedMessage(user_id, message_id)
+        db.session.add(liked_msg)
+        return liked_msg
+
+    def unlike_message(self, message_id, user_id):
+        liked_msg = LikedMessage.query.get((user_id, message_id))
+        db.session.delete(liked_msg)
+
+
 def connect_db(app):
     """Connect this database to provided Flask app.
 
@@ -181,5 +210,3 @@ def connect_db(app):
     app.app_context().push()
     db.app = app
     db.init_app(app)
-
-

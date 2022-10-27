@@ -8,7 +8,7 @@ from werkzeug.exceptions import Unauthorized
 
 
 from forms import UserAddForm, LoginForm, MessageForm, CSRFProtectForm, UserEditForm
-from models import db, connect_db, User, Message, Follows
+from models import db, connect_db, User, Message, Follows, LikedMessage
 
 load_dotenv()
 
@@ -37,12 +37,12 @@ connect_db(app)
 def add_user_to_g():
     """If we're logged in, add curr user to Flask global."""
 
-
     if CURR_USER_KEY in session:
         g.user = User.query.get(session[CURR_USER_KEY])
 
     else:
         g.user = None
+
 
 @app.before_request
 def add_csrf_token_to_g():
@@ -50,7 +50,6 @@ def add_csrf_token_to_g():
     tag to the HTML form. """
 
     g.csrf_form = CSRFProtectForm()
-
 
 
 def do_login(user):
@@ -251,7 +250,7 @@ def profile():
 
     if form.validate_on_submit():
 
-        authenticated =  user.authenticate(user.username, form.password.data)
+        authenticated = user.authenticate(user.username, form.password.data)
         if authenticated:
 
             user.username = form.username.data
@@ -346,6 +345,25 @@ def delete_message(message_id):
     return redirect(f"/users/{g.user.id}")
 
 
+@app.post('/messages/<int:message_id>/like')
+def like_message(message_id):
+    """Like a message.
+    Check like status of current message and like or dislike message
+    appropriately. """
+
+    message = Message.query.get(message_id)
+    liked_msg = LikedMessage.query.get((g.user.id, message_id)) or None
+
+    if liked_msg is True:
+        # unlike the message
+        message.unlike_message()
+        db.session.commit()
+    else:
+        # like the message
+        message.like_message()
+        db.session.commit()
+
+
 ##############################################################################
 # Homepage and error pages
 
@@ -358,9 +376,9 @@ def homepage():
     - logged in: 100 most recent messages of followed_users
     """
 
-    following = [u.id for u in g.user.following] + [g.user.id]
-
     if g.user:
+        following = [u.id for u in g.user.following] + [g.user.id]
+
         messages = (Message
                     .query
                     .filter(Message.user_id.in_(following))
