@@ -211,9 +211,10 @@ def start_following(follow_id):
         flash("Access unauthorized.", "danger")
         return redirect("/")
 
-    followed_user = User.query.get_or_404(follow_id)
-    g.user.following.append(followed_user)
-    db.session.commit()
+    if g.csrf_form.validate_on_submit():
+        followed_user = User.query.get_or_404(follow_id)
+        g.user.following.append(followed_user)
+        db.session.commit()
 
     return redirect(f"/users/{g.user.id}/following")
 
@@ -229,9 +230,10 @@ def stop_following(follow_id):
         flash("Access unauthorized.", "danger")
         return redirect("/")
 
-    followed_user = User.query.get(follow_id)
-    g.user.following.remove(followed_user)
-    db.session.commit()
+    if g.csrf_form.validate_on_submit():
+        followed_user = User.query.get(follow_id)
+        g.user.following.remove(followed_user)
+        db.session.commit()
 
     return redirect(f"/users/{g.user.id}/following")
 
@@ -280,12 +282,14 @@ def delete_user():
         flash("Access unauthorized.", "danger")
         return redirect("/")
 
-    do_logout()
+    if g.csrf_form.validate_on_submit():
 
-    db.session.delete(g.user)
-    db.session.commit()
+        do_logout()
 
-    return redirect("/signup")
+        db.session.delete(g.user)
+        db.session.commit()
+
+        return redirect("/signup")
 
 
 @app.get('/users/<int:user_id>/liked_messages')
@@ -346,14 +350,14 @@ def delete_message(message_id):
     Check that this message was written by the current user.
     Redirect to user page on success.
     """
+    if g.csrf_form.validate_on_submit():
+        if not g.user:
+            flash("Access unauthorized.", "danger")
+            return redirect("/")
 
-    if not g.user:
-        flash("Access unauthorized.", "danger")
-        return redirect("/")
-
-    msg = Message.query.get_or_404(message_id)
-    db.session.delete(msg)
-    db.session.commit()
+        msg = Message.query.get_or_404(message_id)
+        db.session.delete(msg)
+        db.session.commit()
 
     return redirect(f"/users/{g.user.id}")
 
@@ -373,7 +377,7 @@ def like_message(message_id):
     if g.user.id == message.user_id:
         flash(f"You can't like your own messages!", "danger")
 
-    if message not in g.user.liked_messages:
+    elif message not in g.user.liked_messages:
         g.user.liked_messages.append(message)
         db.session.commit()
         flash(f"Message liked!", "success")
@@ -382,8 +386,8 @@ def like_message(message_id):
         g.user.liked_messages.remove(message)
         db.session.commit()
         flash(f"Message unliked!", "success")
-
-    return redirect('/')
+    # breakpoint()
+    return redirect(request.form['last_page'])
 
 ##############################################################################
 # Homepage and error pages

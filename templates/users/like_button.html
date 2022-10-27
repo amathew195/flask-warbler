@@ -1,0 +1,5 @@
+<form id="like_form" method="POST" action="/messages/{{ message.id }}/like"> {{g.csrf_form.hidden_tag()}}
+  <input type="hidden" name="last_page" value="{{ request.path }}">
+  <button style="position: relative; z-index:1" class="btn btn-link"><i
+      class="bi bi-star{% if message in g.user.liked_messages %}-fill{% endif %}"></i></button>
+</form>

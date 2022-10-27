@@ -5,6 +5,7 @@
 #    python -m unittest test_user_model.py
 
 
+from app import app
 import os
 from unittest import TestCase
 
@@ -19,7 +20,6 @@ os.environ['DATABASE_URL'] = "postgresql:///warbler_test"
 
 # Now we can import app
 
-from app import app
 
 # Create our tables (we do this here, so we only create the tables
 # once for all tests --- in each test, we'll delete the data
@@ -53,3 +53,36 @@ class UserModelTestCase(TestCase):
         # User should have no messages & no followers
         self.assertEqual(len(u1.messages), 0)
         self.assertEqual(len(u1.followers), 0)
+        self.assertEqual(len(u1.liked_messages), 0)
+        self.assertEqual(len(u1.following), 0)
+
+    def test_user_repr(self):
+        u1 = User.query.get(self.u1_id)
+
+        self.assertEqual(repr(u1), f"<User #{self.u1_id}: u1, u1@email.com>")
+
+    def test_user_following(self):
+        u1 = User.query.get(self.u1_id)
+        u2 = User.query.get(self.u2_id)
+        u1.following.append(u2)
+
+        self.assertTrue(u1.is_following(u2))
+
+    def test_user_not_following(self):
+        u1 = User.query.get(self.u1_id)
+        u2 = User.query.get(self.u2_id)
+
+        self.assertFalse(u1.is_following(u2))
+
+    def test_user_is_followed_by(self):
+        u1 = User.query.get(self.u1_id)
+        u2 = User.query.get(self.u2_id)
+        u2.following.append(u1)
+
+        self.assertTrue(u1.is_followed_by(u2))
+
+    def test_user_is_not_followed_by(self):
+        u1 = User.query.get(self.u1_id)
+        u2 = User.query.get(self.u2_id)
+
+        self.assertFalse(u1.is_followed_by(u2))
