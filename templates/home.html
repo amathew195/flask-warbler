@@ -51,14 +51,17 @@
           <img src="{{ msg.user.image_url }}" alt="" class="timeline-image">
         </a>
         <div class="message-area">
+          <a href="/">homepage</a>
           <a href="/users/{{ msg.user.id }}">@{{ msg.user.username }}</a>
           <span class="text-muted">{{ msg.timestamp.strftime('%d %B %Y') }}
-            <form action="/messages/{{msg.id}}/like" method="POST">
-              <button class="bi bi-heart btn btn-link"></button>
-            </form>
+
           </span>
           <p>{{ msg.text }}</p>
+
         </div>
+        <form id="like_form" method="POST" action="/messages/{{ msg.id }}/like"> {{g.csrf_form.hidden_tag()}}
+          <a href="javascript:$('#like_form').submit();">Like</a>
+        </form>
       </li>
       {% endfor %}
     </ul>

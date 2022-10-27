@@ -5,6 +5,7 @@ from datetime import datetime
 
 from flask_bcrypt import Bcrypt
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import false
 
 bcrypt = Bcrypt()
 db = SQLAlchemy()
@@ -191,13 +192,20 @@ class LikedMessage(db.Model):
 
     user = db.relationship('User', backref='liked_messages')
 
-    def like_message(self, user_id, message_id):
-        liked_msg = LikedMessage(user_id, message_id)
-        db.session.add(liked_msg)
-        return liked_msg
+    @classmethod
+    def like_message(cls, user, message):
+        if user.id != message.user_id:
+            liked_msg = LikedMessage(user_id=user.id, message_id=message.id)
+            db.session.add(liked_msg)
+            return True
 
-    def unlike_message(self, message_id, user_id):
-        liked_msg = LikedMessage.query.get((user_id, message_id))
+        else:
+            return False
+
+    @classmethod
+    def unlike_message(cls, user, message):
+
+        liked_msg = LikedMessage.query.get_or_404((user.id, message.id))
         db.session.delete(liked_msg)
 
 
