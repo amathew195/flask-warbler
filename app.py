@@ -345,37 +345,68 @@ def delete_message(message_id):
     return redirect(f"/users/{g.user.id}")
 
 
+# @app.post('/messages/<int:message_id>/like')
+# def like_message(message_id):
+#     """Like a message.
+#     Check like status of current message and like msg if unliked."""
+#     print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>MSG CLICKED')
+#     message = Message.query.get_or_404(message_id)
+#     msg_is_liked = LikedMessage.query.get((g.user.id, message_id))
+#     user = g.user
+#     breakpoint()
+#     if not msg_is_liked:
+#         # unlike the message
+#         if LikedMessage.like_message(user, message):
+#             db.session.commit()
+#         else:
+#             flash(f"You can't like your own messages!", "danger")
+
+#     return redirect('/')
+
+
+# @app.post('/messages/<int:message_id>/unlike')
+# def unlike_message(message_id):
+#     """Unlike a message.
+#     Check like status of current message and unlike msg if liked."""
+
+#     message = Message.query.get_or_404(message_id)
+#     msg_is_liked = LikedMessage.query.get((g.user.id, message_id)) or None
+
+#     if msg_is_liked is True:
+#         # unlike the message
+#         msg_is_liked.unlike_message(message, user=g.user)
+#         db.session.commit()
+
+    # return redirect('/')
+
 @app.post('/messages/<int:message_id>/like')
 def like_message(message_id):
     """Like a message.
     Check like status of current message and like msg if unliked."""
-    print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>MSG CLICKED')
-    message = Message.query.get_or_404(message_id)
-    msg_is_liked = LikedMessage.query.get((g.user.id, message_id))
-    user = g.user
-
-    if not msg_is_liked:
-        # unlike the message
-        if LikedMessage.like_message(user, message):
-            db.session.commit()
-        else:
-            flash(f"You can't like your own messages!", "danger")
-
-        return redirect('/')
-
-
-@app.post('/messages/<int:message_id>/unlike')
-def unlike_message(message_id):
-    """Unlike a message.
-    Check like status of current message and unlike msg if liked."""
 
     message = Message.query.get_or_404(message_id)
-    msg_is_liked = LikedMessage.query.get((g.user.id, message_id)) or None
+    likedMsg = LikedMessage.query.get((g.user.id, message_id)) or None
 
-    if msg_is_liked is True:
-        # unlike the message
-        msg_is_liked.unlike_message(message, user=g.user)
+    # fail if same user
+    if g.user.id == message.user_id:
+        flash(f"You can't like your own messages!", "danger")
+
+    # if msg UNLIKED: like msg
+    elif not likedMsg:
+        like = LikedMessage(user_id=g.user.id, message_id=message_id)
+        breakpoint()
+        db.session.add(like)
         db.session.commit()
+
+        flash(f"Message liked!", "success")
+
+    # if msg LIKED: unlike msg
+    elif likedMsg:
+
+        db.session.delete(likedMsg)
+        db.session.commit()
+
+        flash(f"Message unliked!", "success")
 
     return redirect('/')
 
@@ -384,7 +415,7 @@ def unlike_message(message_id):
 # Homepage and error pages
 
 
-@app.get('/')
+@ app.get('/')
 def homepage():
     """Show homepage:
 
@@ -415,7 +446,7 @@ def homepage():
 #
 # https://stackoverflow.com/questions/34066804/disabling-caching-in-flask
 
-@app.after_request
+@ app.after_request
 def add_header(response):
     """Add non-caching headers on every request."""
 
