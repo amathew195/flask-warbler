@@ -54,26 +54,26 @@
     <ul class="list-group" id="messages">
       {% for msg in messages %}
       <li class="list-group-item">
-        <a href="/messages/{{ msg.id }}" class="message-link" />
-        <a href="/users/{{ msg.user.id }}">
-          <img src="{{ msg.user.image_url }}" alt="" class="timeline-image">
-        </a>
-        <div class="message-area">
-          <a href="/">homepage</a>
-          <a href="/users/{{ msg.user.id }}">@{{ msg.user.username }}</a>
-          <span class="text-muted">{{ msg.timestamp.strftime('%d %B %Y') }}
+        <a href="/messages/{{ msg.id }}" class="message-link">
+          <a href="/users/{{ msg.user.id }}">
+            <img src="{{ msg.user.image_url }}" alt="" class="timeline-image">
+          </a>
+          <div class="message-area">
 
-          </span>
-          <p>{{ msg.text }}</p>
+            <a href="/users/{{ msg.user.id }}">@{{ msg.user.username }}</a>
+            <span class="text-muted">{{ msg.timestamp.strftime('%d %B %Y') }}
 
-        </div>
-        <form id="like_form" method="POST" action="/messages/{{ msg.id }}/like"> {{g.csrf_form.hidden_tag()}}
-          {% if msg.id in liked_messages_ids %}
-          <button style="position: relative; z-index:1" class="btn btn-link"><i class="bi bi-star-fill"></i></button>
-          {% else %}
-          <button style="position: relative; z-index:1" class="btn btn-link"><i class="bi bi-star"></i></button>
-          {% endif %}
-        </form>
+            </span>
+            <p>{{ msg.text }}</p>
+
+          </div>
+          <form id="like_form" method="POST" action="/messages/{{ msg.id }}/like"> {{g.csrf_form.hidden_tag()}}
+            {% if msg.id in liked_messages_ids %}
+            <button style="position: relative; z-index:1" class="btn btn-link"><i class="bi bi-star-fill"></i></button>
+            {% else %}
+            <button style="position: relative; z-index:1" class="btn btn-link"><i class="bi bi-star"></i></button>
+            {% endif %}
+          </form>
       </li>
       {% endfor %}
     </ul>

@@ -288,8 +288,21 @@ def delete_user():
     return redirect("/signup")
 
 
+@app.get('/users/<int:user_id>/liked_messages')
+def show_liked_messages(user_id):
+    """Show list of messages the user has liked."""
+
+    if not g.user:
+        flash("Access unauthorized.", "danger")
+        return redirect("/")
+
+    user = User.query.get_or_404(user_id)
+
+    return render_template('/users/liked_messages.html', user=user)
+
 ##############################################################################
 # Messages routes:
+
 
 @app.route('/messages/new', methods=["GET", "POST"])
 def add_message():
@@ -347,8 +360,9 @@ def delete_message(message_id):
 
 @app.post('/messages/<int:message_id>/like')
 def like_message(message_id):
-    """Like a message.
-    Check like status of current message and like msg if unliked."""
+    """Like or unlike a message.
+    Check like status of current message and like msg if unliked.
+    Redirects to homepage. """
 
     message = Message.query.get_or_404(message_id)
     likedMsg = LikedMessage.query.get((g.user.id, message_id)) or None
@@ -393,8 +407,8 @@ def homepage():
 
     if g.user:
         following = [u.id for u in g.user.following] + [g.user.id]
-        liked_messages = g.user.liked_messages
-        liked_messages_ids = [msg.message_id for msg in liked_messages]
+
+        liked_messages_ids = [msg.message_id for msg in g.user.liked_messages]
 
         messages = (Message
                     .query

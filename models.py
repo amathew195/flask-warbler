@@ -144,14 +144,14 @@ class User(db.Model):
             user for user in self.following if user == other_user]
         return len(found_user_list) == 1
 
-    def get_liked_messages(self):
-        """ Returns a list of liked messages instances"""
+    # def get_liked_messages(self):
+    #     """ Returns a list of liked messages instances"""
 
-        liked_messages = self.liked_messages
-        liked_messages_ids = [msg.message_id for msg in liked_messages]
-        liked_message_instances = Message.query.filter(
-            Message.id.in_(liked_messages_ids)).all()
-        return liked_message_instances
+    #     liked_messages = self.liked_messages
+    #     liked_messages_ids = [msg.message_id for msg in liked_messages]
+    #     liked_message_instances = Message.query.filter(
+    #         Message.id.in_(liked_messages_ids)).all()
+    #     return liked_message_instances
 
 
 class Message(db.Model):
@@ -200,6 +200,7 @@ class LikedMessage(db.Model):
     )
 
     user = db.relationship('User', backref='liked_messages')
+    message = db.relationship('Message', backref='liked_messages')
 
 
 def connect_db(app):
