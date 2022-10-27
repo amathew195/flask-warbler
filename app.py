@@ -8,7 +8,7 @@ from werkzeug.exceptions import Unauthorized
 
 
 from forms import UserAddForm, LoginForm, MessageForm, CSRFProtectForm, UserEditForm
-from models import db, connect_db, User, Message, Follows, LikedMessage
+from models import db, connect_db, User, Message, Follows, Likes
 
 load_dotenv()
 
@@ -364,31 +364,23 @@ def like_message(message_id):
     Check like status of current message and like msg if unliked.
     Redirects to homepage. """
 
+    if not g.user or not g.csrf_form.validate_on_submit():
+        flash("Access unauthorized.", "danger")
+        return redirect("/")
+
     message = Message.query.get_or_404(message_id)
-    likedMsg = LikedMessage.query.get((g.user.id, message_id)) or None
 
-    # liked_messages_ids: list
-    # if msg.id is in liked_messages_ids: show filled star
-    # else: show empty star
-
-    # fail if same user
     if g.user.id == message.user_id:
         flash(f"You can't like your own messages!", "danger")
 
-    # if msg UNLIKED: like msg
-    elif not likedMsg:
-        like = LikedMessage(user_id=g.user.id, message_id=message_id)
-        db.session.add(like)
+    if message not in g.user.liked_messages:
+        g.user.liked_messages.append(message)
         db.session.commit()
-
         flash(f"Message liked!", "success")
 
-    # if msg LIKED: unlike msg
-    elif likedMsg:
-
-        db.session.delete(likedMsg)
+    else:
+        g.user.liked_messages.remove(message)
         db.session.commit()
-
         flash(f"Message unliked!", "success")
 
     return redirect('/')
@@ -408,8 +400,6 @@ def homepage():
     if g.user:
         following = [u.id for u in g.user.following] + [g.user.id]
 
-        liked_messages_ids = [msg.message_id for msg in g.user.liked_messages]
-
         messages = (Message
                     .query
                     .filter(Message.user_id.in_(following))
@@ -418,8 +408,8 @@ def homepage():
                     .all())
 
         return render_template('home.html',
-                               messages=messages,
-                               liked_messages_ids=liked_messages_ids)
+                               messages=messages
+                               )
 
     else:
         return render_template('home-anon.html')

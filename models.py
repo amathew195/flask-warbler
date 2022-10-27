@@ -87,6 +87,12 @@ class User(db.Model):
         backref="following",
     )
 
+    liked_messages = db.relationship(
+        "Message",
+        secondary="liked_messages",
+
+    )
+
     def __repr__(self):
         return f"<User #{self.id}: {self.username}, {self.email}>"
 
@@ -144,15 +150,6 @@ class User(db.Model):
             user for user in self.following if user == other_user]
         return len(found_user_list) == 1
 
-    # def get_liked_messages(self):
-    #     """ Returns a list of liked messages instances"""
-
-    #     liked_messages = self.liked_messages
-    #     liked_messages_ids = [msg.message_id for msg in liked_messages]
-    #     liked_message_instances = Message.query.filter(
-    #         Message.id.in_(liked_messages_ids)).all()
-    #     return liked_message_instances
-
 
 class Message(db.Model):
     """An individual message ("warble")."""
@@ -182,7 +179,7 @@ class Message(db.Model):
     )
 
 
-class LikedMessage(db.Model):
+class Likes(db.Model):
     """Connection of a user <-> liked messages."""
 
     __tablename__ = 'liked_messages'
@@ -198,9 +195,6 @@ class LikedMessage(db.Model):
         db.ForeignKey('messages.id', ondelete="cascade"),
         primary_key=True,
     )
-
-    user = db.relationship('User', backref='liked_messages')
-    message = db.relationship('Message', backref='liked_messages')
 
 
 def connect_db(app):

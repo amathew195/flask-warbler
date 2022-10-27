@@ -68,7 +68,7 @@
 
           </div>
           <form id="like_form" method="POST" action="/messages/{{ msg.id }}/like"> {{g.csrf_form.hidden_tag()}}
-            {% if msg.id in liked_messages_ids %}
+            {% if msg in g.user.liked_messages %}
             <button style="position: relative; z-index:1" class="btn btn-link"><i class="bi bi-star-fill"></i></button>
             {% else %}
             <button style="position: relative; z-index:1" class="btn btn-link"><i class="bi bi-star"></i></button>
