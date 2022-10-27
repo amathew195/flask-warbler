@@ -192,21 +192,21 @@ class LikedMessage(db.Model):
 
     user = db.relationship('User', backref='liked_messages')
 
-    @classmethod
-    def like_message(cls, user, message):
-        if user.id != message.user_id:
-            liked_msg = LikedMessage(user_id=user.id, message_id=message.id)
-            db.session.add(liked_msg)
-            return True
+    # @classmethod
+    # def like_message(cls, user, message):
+    #     if user.id != message.user_id:
+    #         liked_msg = LikedMessage(user_id=user.id, message_id=message.id)
+    #         db.session.add(liked_msg)
+    #         return True
 
-        else:
-            return False
+    #     else:
+    #         return False
 
-    @classmethod
-    def unlike_message(cls, user, message):
+    # @classmethod
+    # def unlike_message(cls, user, message):
 
-        liked_msg = LikedMessage.query.get_or_404((user.id, message.id))
-        db.session.delete(liked_msg)
+    #     liked_msg = LikedMessage.query.get_or_404((user.id, message.id))
+    #     db.session.delete(liked_msg)
 
 
 def connect_db(app):
