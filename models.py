@@ -144,6 +144,15 @@ class User(db.Model):
             user for user in self.following if user == other_user]
         return len(found_user_list) == 1
 
+    def get_liked_messages(self):
+        """ Returns a list of liked messages instances"""
+
+        liked_messages = self.liked_messages
+        liked_messages_ids = [msg.message_id for msg in liked_messages]
+        liked_message_instances = Message.query.filter(
+            Message.id.in_(liked_messages_ids)).all()
+        return liked_message_instances
+
 
 class Message(db.Model):
     """An individual message ("warble")."""
@@ -191,22 +200,6 @@ class LikedMessage(db.Model):
     )
 
     user = db.relationship('User', backref='liked_messages')
-
-    # @classmethod
-    # def like_message(cls, user, message):
-    #     if user.id != message.user_id:
-    #         liked_msg = LikedMessage(user_id=user.id, message_id=message.id)
-    #         db.session.add(liked_msg)
-    #         return True
-
-    #     else:
-    #         return False
-
-    # @classmethod
-    # def unlike_message(cls, user, message):
-
-    #     liked_msg = LikedMessage.query.get_or_404((user.id, message.id))
-    #     db.session.delete(liked_msg)
 
 
 def connect_db(app):

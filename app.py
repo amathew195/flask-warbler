@@ -345,40 +345,6 @@ def delete_message(message_id):
     return redirect(f"/users/{g.user.id}")
 
 
-# @app.post('/messages/<int:message_id>/like')
-# def like_message(message_id):
-#     """Like a message.
-#     Check like status of current message and like msg if unliked."""
-#     print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>MSG CLICKED')
-#     message = Message.query.get_or_404(message_id)
-#     msg_is_liked = LikedMessage.query.get((g.user.id, message_id))
-#     user = g.user
-#     breakpoint()
-#     if not msg_is_liked:
-#         # unlike the message
-#         if LikedMessage.like_message(user, message):
-#             db.session.commit()
-#         else:
-#             flash(f"You can't like your own messages!", "danger")
-
-#     return redirect('/')
-
-
-# @app.post('/messages/<int:message_id>/unlike')
-# def unlike_message(message_id):
-#     """Unlike a message.
-#     Check like status of current message and unlike msg if liked."""
-
-#     message = Message.query.get_or_404(message_id)
-#     msg_is_liked = LikedMessage.query.get((g.user.id, message_id)) or None
-
-#     if msg_is_liked is True:
-#         # unlike the message
-#         msg_is_liked.unlike_message(message, user=g.user)
-#         db.session.commit()
-
-    # return redirect('/')
-
 @app.post('/messages/<int:message_id>/like')
 def like_message(message_id):
     """Like a message.
@@ -386,6 +352,10 @@ def like_message(message_id):
 
     message = Message.query.get_or_404(message_id)
     likedMsg = LikedMessage.query.get((g.user.id, message_id)) or None
+
+    # liked_messages_ids: list
+    # if msg.id is in liked_messages_ids: show filled star
+    # else: show empty star
 
     # fail if same user
     if g.user.id == message.user_id:
@@ -409,7 +379,6 @@ def like_message(message_id):
 
     return redirect('/')
 
-
 ##############################################################################
 # Homepage and error pages
 
@@ -424,6 +393,8 @@ def homepage():
 
     if g.user:
         following = [u.id for u in g.user.following] + [g.user.id]
+        liked_messages = g.user.liked_messages
+        liked_messages_ids = [msg.message_id for msg in liked_messages]
 
         messages = (Message
                     .query
@@ -432,7 +403,9 @@ def homepage():
                     .limit(100)
                     .all())
 
-        return render_template('home.html', messages=messages)
+        return render_template('home.html',
+                               messages=messages,
+                               liked_messages_ids=liked_messages_ids)
 
     else:
         return render_template('home-anon.html')

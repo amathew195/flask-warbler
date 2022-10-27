@@ -37,6 +37,14 @@
               </a>
             </h4>
           </li>
+          <li class="stat">
+            <p class="small">Liked Messages</p>
+            <h4>
+              <a href="/users/{{ g.user.id }}/liked_messages">
+                {{ g.user.liked_messages | length }}
+              </a>
+            </h4>
+          </li>
         </ul>
       </div>
     </div>
@@ -60,7 +68,11 @@
 
         </div>
         <form id="like_form" method="POST" action="/messages/{{ msg.id }}/like"> {{g.csrf_form.hidden_tag()}}
-          <a href="javascript:$('#like_form').submit();">Like</a>
+          {% if msg.id in liked_messages_ids %}
+          <button style="position: relative; z-index:1" class="btn btn-link"><i class="bi bi-star-fill"></i></button>
+          {% else %}
+          <button style="position: relative; z-index:1" class="btn btn-link"><i class="bi bi-star"></i></button>
+          {% endif %}
         </form>
       </li>
       {% endfor %}
