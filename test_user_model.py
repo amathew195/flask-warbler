@@ -9,7 +9,8 @@ from app import app
 import os
 from unittest import TestCase
 
-from models import db, User, Message, Follows, connect_db
+from models import db, User, Message, Follows, Likes, connect_db
+from sqlalchemy.exc import IntegrityError
 
 # BEFORE we import our app, let's set an environmental variable
 # to use a different database for tests (we need to do this
@@ -86,3 +87,34 @@ class UserModelTestCase(TestCase):
         u2 = User.query.get(self.u2_id)
 
         self.assertFalse(u1.is_followed_by(u2))
+
+    def test_valid_signup(self):
+        u3 = User.signup("u3", "u3@email.com", "password", None)
+        db.session.commit()
+
+        self.assertTrue(User.query.get(u3.id))
+
+    def test_invalid_duplicate_username(self):
+        u3 = User.signup("u1", "u1@email.com", "password", None)
+
+        self.assertRaises(IntegrityError, db.session.commit)
+
+    def test_invalid_input_signup(self):
+        u4 = User.signup("u4", None, "password", None)
+
+        self.assertRaises(IntegrityError, db.session.commit)
+
+    def test_authentication_valid(self):
+
+        self.assertTrue(User.authenticate(
+            username="u1", password="password"))
+
+    def test_authentication_invalid_username(self):
+
+        self.assertFalse(User.authenticate(
+            username="u7", password="password"))
+
+    def test_authentication_invalid_password(self):
+
+        self.assertFalse(User.authenticate(
+            username="u1", password="invalid_password"))
