@@ -381,16 +381,6 @@ def like_message(message_id):
         g.user.toggle_like(message)
         db.session.commit()
 
-    # elif message not in g.user.liked_messages:
-    #     g.user.liked_messages.append(message)
-    #     db.session.commit()
-    #     flash(f"Message liked!", "success")
-
-    # else:
-    #     g.user.liked_messages.remove(message)
-    #     db.session.commit()
-    #     flash(f"Message unliked!", "success")
-
     return redirect(request.form['last_page'])
 
 ##############################################################################

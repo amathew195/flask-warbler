@@ -32,36 +32,56 @@ db.drop_all()
 db.create_all()
 
 
-class UserModelTestCase(TestCase):
+class MessageModelTestCase(TestCase):
     def setUp(self):
+
+        Message.query.delete()
         User.query.delete()
 
         u1 = User.signup("u1", "u1@email.com", "password", None)
         u2 = User.signup("u2", "u2@email.com", "password", None)
 
+        db.session.commit()
         self.u1_id = u1.id
         self.u2_id = u2.id
 
-        m1 = Message(text="message_1_content",
-                     user_id=self.u1_id
-                     )
+        m1 = Message(text="message_1_content")
+        u1.messages.append(m1)
 
-        m2 = Message(text="message_2_content",
-                     user_id=self.u2_id
-                     )
+        m2 = Message(text="message_2_content")
+        u2.messages.append(m2)
 
-        db.session.add_all([m1, m2])
-        db.session.commit
+        db.session.commit()
+        self.m1_id = m1.id
+        self.m2_id = m2.id
 
+        # breakpoint()
         self.client = app.test_client()
 
     def tearDown(self):
         db.session.rollback()
-    
-    #check repr method
-    #creating invalid message - integrity error check
-    #creating valid message
-    #if user 1 likes user 2's message, user 1 liked_messages length should be 1
-    #test user can't like their own message
-    #msg deleting 
-    #test unliking message
+
+    def test_message_repr(self):
+
+        m1 = Message.query.get(self.m1_id)
+
+        self.assertEqual(
+            repr(m1), f"<Message #{m1.id}: User #{m1.user_id}>")
+
+    def test_valid_message(self):
+
+        u1 = User.query.get(self.u1_id)
+        m3 = Message(text='m3_test_text')
+        breakpoint()
+        u1.messages.append(m3)
+        db.session.commit()
+
+        self.assertTrue(Message.query.get(m3.id))
+
+        # check repr method
+    # creating invalid message - integrity error check
+    # creating valid message
+    # check method - can_like_msg
+    # check method - toggle_like
+    # if user 1 likes user 2's message, user 1 liked_messages length should be 1
+    # msg deleting

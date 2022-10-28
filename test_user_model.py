@@ -106,8 +106,9 @@ class UserModelTestCase(TestCase):
 
     def test_authentication_valid(self):
 
-        self.assertTrue(User.authenticate(
-            username="u1", password="password"))
+        self.assertTrue(isinstance(User.authenticate(
+            username="u1", password="password"), User)
+        )
 
     def test_authentication_invalid_username(self):
 
