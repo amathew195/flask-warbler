@@ -386,7 +386,6 @@ def like_message(message_id):
         g.user.liked_messages.remove(message)
         db.session.commit()
         flash(f"Message unliked!", "success")
-    # breakpoint()
     return redirect(request.form['last_page'])
 
 ##############################################################################

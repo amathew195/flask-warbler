@@ -57,3 +57,11 @@ class UserModelTestCase(TestCase):
 
     def tearDown(self):
         db.session.rollback()
+    
+    #check repr method
+    #creating invalid message - integrity error check
+    #creating valid message
+    #if user 1 likes user 2's message, user 1 liked_messages length should be 1
+    #test user can't like their own message
+    #msg deleting 
+    #test unliking message
