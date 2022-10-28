@@ -43,48 +43,88 @@ class UserViewsTestCase(TestCase):
 
         self.client = app.test_client()
 
+        app.config['WTF_CSRF_ENABLED'] = False
+
     def tearDown(self):
         db.session.rollback()
 
-
-# AUTHENTICATION
-
-
     def test_following_page_authorized(self):
-        with self.client.session_transaction() as session:
-            session['curr_user'] = self.u1_id
+        with self.client as c:
+            with c.session_transaction() as session:
+                session['curr_user'] = self.u1_id
 
-        response = self.client.get(
-            f'/users/{self.u1_id}/following', follow_redirects=True)
-        html = response.get_data(as_text=True)
+            response = c.get(
+                f'/users/{self.u1_id}/following', follow_redirects=True)
+            html = response.get_data(as_text=True)
 
-        self.assertEqual(response.status_code, 200)
-        self.assertIn("Following page for integration testing", html)
+            self.assertEqual(response.status_code, 200)
+            self.assertIn("Following page for integration testing", html)
+            self.assertIn("following_list", html)
 
     def test_following_page_unauthorized(self):
+        with self.client as c:
+            response = c.get(
+                f'/users/{self.u1_id}/following', follow_redirects=True)
+            html = response.get_data(as_text=True)
 
-        response = self.client.get(
-            f'/users/{self.u1_id}/following')
-
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.location, "/")
+            self.assertEqual(response.status_code, 200)
+            self.assertIn("Access unauthorized", html)
 
     def test_followers_page_authorized(self):
-        with self.client.session_transaction() as session:
-            session['curr_user'] = self.u1_id
+        with self.client as c:
+            with c.session_transaction() as session:
+                session['curr_user'] = self.u1_id
 
-        response = self.client.get(
-            f'/users/{self.u1_id}/followers', follow_redirects=True)
-        html = response.get_data(as_text=True)
+            response = c.get(
+                f'/users/{self.u1_id}/followers', follow_redirects=True)
+            html = response.get_data(as_text=True)
 
-        self.assertEqual(response.status_code, 200)
-        self.assertIn("Followers page for integration testing", html)
+            self.assertEqual(response.status_code, 200)
+            self.assertIn("Followers page for integration testing", html)
+            self.assertIn("followers_list", html)
 
+    def test_follower_page_unauthorized(self):
+        with self.client as c:
+            response = c.get(
+                f'/users/{self.u1_id}/followers', follow_redirects=True)
+            html = response.get_data(as_text=True)
 
-# WHEN LOGGED in - can see follower/following pages for any user
+            self.assertEqual(response.status_code, 200)
+            self.assertIn("Access unauthorized", html)
 
-# log in
-# navigate to random user
-# follow route > following LOGGED IN
-# check 200
-# check DOM
+    def test_start_follow(self):
+        u2 = User.query.get(self.u2_id)
+        u1 = User.query.get(self.u1_id)
+        with self.client as c:
+            with c.session_transaction() as session:
+                session['curr_user'] = self.u1_id
+
+            response = c.post(
+                f'/users/follow/{self.u2_id}',
+                follow_redirects=True
+            )
+            html = response.get_data(as_text=True)
+
+            self.assertEqual(response.status_code, 200)
+            self.assertIn("@u2", html)
+
+    def test_stop_following(self):
+        u1 = User.query.get(self.u1_id)
+        u2 = User.query.get(self.u2_id)
+        u1.following.append(u2)
+        db.session.commit()
+
+        with self.client as c:
+            with c.session_transaction() as session:
+                session['curr_user'] = self.u1_id
+
+            response = c.post(
+                f'/users/stop-following/{self.u2_id}',
+                follow_redirects=True
+            )
+
+            html = response.get_data(as_text=True)
+
+            self.assertEqual(response.status_code, 200)
+            self.assertNotIn("@u2", html)
+            self.assertIn("Following page for integration testing", html)
