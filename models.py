@@ -178,6 +178,9 @@ class Message(db.Model):
         nullable=False,
     )
 
+    def __repr__(self):
+        return f"<Message #{self.id}: User #{self.user_id}>"
+
 
 class Likes(db.Model):
     """Connection of a user <-> liked messages."""
