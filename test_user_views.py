@@ -3,11 +3,11 @@
 """User model tests."""
 
 
-from app import app
+from app import app, session
 import os
 from unittest import TestCase
 
-from models import db, User, Message, Follows, Likes, connect_db
+from models import db, User, connect_db
 from sqlalchemy.exc import IntegrityError
 
 # BEFORE we import our app, let's set an environmental variable
@@ -42,7 +42,7 @@ class UserViewsTestCase(TestCase):
         self.u2_id = u2.id
 
         self.client = app.test_client()
-
+        breakpoint()
         app.config['WTF_CSRF_ENABLED'] = False
 
     def tearDown(self):
@@ -128,3 +128,68 @@ class UserViewsTestCase(TestCase):
             self.assertEqual(response.status_code, 200)
             self.assertNotIn("@u2", html)
             self.assertIn("Following page for integration testing", html)
+
+    def test_login_valid(self):
+        # u1 = User.query.get(self.u1_id)
+
+        with self.client as c:
+            # with c.session_transaction() as session:
+
+            response = c.post(
+                '/login',
+                data={
+                    'username': 'u1',
+                    'password': 'password'
+                },
+                follow_redirects=True
+            )
+            self.assertEqual(session['curr_user'], 25)
+            html = response.get_data(as_text=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('Hello, u1!', html)
+
+    def test_login_invalid(self):
+        with self.client as c:
+            response = c.post(
+                '/login',
+                data={
+                    'username': 'u1',
+                    'password': 'wrong_password'
+                },
+                follow_redirects=True
+            )
+            html = response.get_data(as_text=True)
+
+            self.assertEqual(response.status_code, 200)
+            self.assertIn('Invalid credentials', html)
+
+    def test_logout(self):
+        with self.client as c:
+            with c.session_transaction() as session:
+                session['curr_user'] = self.u1_id
+
+            response = c.post(
+                '/logout',
+                follow_redirects=True
+            )
+            html = response.get_data(as_text=True)
+
+            self.assertEqual(response.status_code, 200)
+            self.assertIn('Successfully logged out!', html)
+
+    def test_signup(self):
+        with self.client as c:
+            response = c.post(
+                '/signup',
+                data={
+                    'username': 'u3',
+                    'password': 'password',
+                    'email': 'email@email.com'
+                },
+                follow_redirects=True
+            )
+
+            html = response.get_data(as_text=True)
+            self.assertEqual(response.status_code, 200)
+            self.assertIn('Hello, u1!', html)
