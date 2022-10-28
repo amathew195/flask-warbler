@@ -9,7 +9,7 @@ from app import app
 import os
 from unittest import TestCase
 
-from models import db, User, Message, Follows, Likes, connect_db
+from models import db, User, Message, connect_db
 from sqlalchemy.exc import IntegrityError
 
 # BEFORE we import our app, let's set an environmental variable
@@ -77,9 +77,43 @@ class MessageModelTestCase(TestCase):
 
         self.assertTrue(Message.query.get(m3.id))
 
+    def test_invalid_message(self):
 
-    # invalid message - integrity error check
-    # check method - can_like_msg
-    # check method - toggle_like
-    # if user 1 likes user 2's message, user 1 liked_messages length should be 1
-    # msg deleting
+        u1 = User.query.get(self.u1_id)
+        m3 = Message(text=None)
+        u1.messages.append(m3)
+
+        self.assertRaises(IntegrityError, db.session.commit)
+
+    def test_cannot_like_own_msg(self):
+        u1 = User.query.get(self.u1_id)
+        m1 = Message.query.get(self.m1_id)
+
+        self.assertFalse(u1.can_like_msg(m1))
+
+    def test_can_like_msg(self):
+        u1 = User.query.get(self.u1_id)
+        m2 = Message.query.get(self.m2_id)
+
+        self.assertTrue(u1.can_like_msg(m2))
+
+    def test_like_msg(self):
+        u1 = User.query.get(self.u1_id)
+        m2 = Message.query.get(self.m2_id)
+
+        u1.toggle_like(m2)
+        db.session.commit()
+
+        self.assertTrue(m2 in u1.liked_messages)
+
+    def test_unlike_msg(self):
+        u1 = User.query.get(self.u1_id)
+        m2 = Message.query.get(self.m2_id)
+
+        u1.liked_messages.append(m2)
+        db.session.commit()
+
+        u1.toggle_like(m2)
+        db.session.commit()
+
+        self.assertTrue(m2 not in u1.liked_messages)
