@@ -87,6 +87,7 @@ class User(db.Model):
         backref="following",
     )
 
+    # Add a like to a msg by calling [user].liked_messages.append([msg])
     liked_messages = db.relationship(
         "Message",
         secondary="liked_messages",
@@ -149,6 +150,26 @@ class User(db.Model):
         found_user_list = [
             user for user in self.following if user == other_user]
         return len(found_user_list) == 1
+
+    def can_like_msg(self, message):
+        """ Tests if current user is not author of message the user
+        is trying to like. Returns true if user can like message, else false.
+        """
+
+        return self.id != message.user_id
+
+    def toggle_like(self, message):
+        """ Toggles like/unlike for a message
+        Input: User instance, message
+        Returns: the message """
+
+        if message not in self.liked_messages:
+            self.liked_messages.append(message)
+
+        else:
+            self.liked_messages.remove(message)
+
+        return message
 
 
 class Message(db.Model):

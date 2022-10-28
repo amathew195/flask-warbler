@@ -374,18 +374,23 @@ def like_message(message_id):
 
     message = Message.query.get_or_404(message_id)
 
-    if g.user.id == message.user_id:
+    if not g.user.can_like_msg(message):
         flash(f"You can't like your own messages!", "danger")
 
-    elif message not in g.user.liked_messages:
-        g.user.liked_messages.append(message)
-        db.session.commit()
-        flash(f"Message liked!", "success")
-
     else:
-        g.user.liked_messages.remove(message)
+        g.user.toggle_like(message)
         db.session.commit()
-        flash(f"Message unliked!", "success")
+
+    # elif message not in g.user.liked_messages:
+    #     g.user.liked_messages.append(message)
+    #     db.session.commit()
+    #     flash(f"Message liked!", "success")
+
+    # else:
+    #     g.user.liked_messages.remove(message)
+    #     db.session.commit()
+    #     flash(f"Message unliked!", "success")
+
     return redirect(request.form['last_page'])
 
 ##############################################################################

@@ -3,23 +3,26 @@
 <div class="col-sm-6">
   <ul class="list-group" id="messages">
 
-    {% for msg in user.liked_messages %}
+    {% for message in user.liked_messages %}
 
     <li class="list-group-item">
-      <a href="/messages/{{ msg.id }}" class="message-link"></a>
+      <a href="/messages/{{ message.id }}" class="message-link"></a>
 
-      <a href="/users/{{ msg.user_id }}">
-        <img src="{{ msg.user.image_url }}" alt="user image" class="timeline-image">
+      <a href="/users/{{ message.user_id }}">
+        <img src="{{ message.user.image_url }}" alt="user image" class="timeline-image">
       </a>
 
       <div class="message-area">
-        <a href="/users/{{ msg.user_id }}">@{{ msg.user.username }}</a>
+        <a href="/users/{{ message.user_id }}">@{{ message.user.username }}</a>
         <span class="text-muted">
-          {{ msg.timestamp.strftime('%d %B %Y') }}
+          {{ message.timestamp.strftime('%d %B %Y') }}
         </span>
-        <p>{{ msg.text }}</p>
+        <p>{{ message.text }}</p>
       </div>
+      {% include 'users/like_button.html' %}
+
     </li>
+
 
     {% endfor %}
 
