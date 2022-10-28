@@ -42,6 +42,7 @@ class MessageModelTestCase(TestCase):
         u2 = User.signup("u2", "u2@email.com", "password", None)
 
         db.session.commit()
+
         self.u1_id = u1.id
         self.u2_id = u2.id
 
@@ -55,7 +56,6 @@ class MessageModelTestCase(TestCase):
         self.m1_id = m1.id
         self.m2_id = m2.id
 
-        # breakpoint()
         self.client = app.test_client()
 
     def tearDown(self):
@@ -72,15 +72,13 @@ class MessageModelTestCase(TestCase):
 
         u1 = User.query.get(self.u1_id)
         m3 = Message(text='m3_test_text')
-        breakpoint()
         u1.messages.append(m3)
         db.session.commit()
 
         self.assertTrue(Message.query.get(m3.id))
 
-        # check repr method
-    # creating invalid message - integrity error check
-    # creating valid message
+
+    # invalid message - integrity error check
     # check method - can_like_msg
     # check method - toggle_like
     # if user 1 likes user 2's message, user 1 liked_messages length should be 1
