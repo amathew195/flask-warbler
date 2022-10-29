@@ -3,7 +3,7 @@
 """User model tests."""
 
 
-from app import app, session
+from app import app, session, CURR_USER_KEY
 import os
 from unittest import TestCase
 
@@ -73,7 +73,7 @@ class UserViewsTestCase(TestCase):
     def test_followers_page_authorized(self):
         with self.client as c:
             with c.session_transaction() as session:
-                session['curr_user'] = self.u1_id
+                session[CURR_USER_KEY] = self.u1_id
 
             response = c.get(
                 f'/users/{self.u1_id}/followers', follow_redirects=True)
@@ -97,7 +97,7 @@ class UserViewsTestCase(TestCase):
         u1 = User.query.get(self.u1_id)
         with self.client as c:
             with c.session_transaction() as session:
-                session['curr_user'] = self.u1_id
+                session[CURR_USER_KEY] = self.u1_id
 
             response = c.post(
                 f'/users/follow/{self.u2_id}',
@@ -192,4 +192,4 @@ class UserViewsTestCase(TestCase):
 
             html = response.get_data(as_text=True)
             self.assertEqual(response.status_code, 200)
-            self.assertIn('Hello, u1!', html)
+            self.assertIn('Hello, u3!', html)

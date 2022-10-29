@@ -113,6 +113,8 @@ class MessageModelTestCase(TestCase):
         u1.liked_messages.append(m2)
         db.session.commit()
 
+        self.assertFalse(m2 not in u1.liked_messages)
+
         u1.toggle_like(m2)
         db.session.commit()
 

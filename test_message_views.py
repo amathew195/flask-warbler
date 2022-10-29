@@ -42,16 +42,22 @@ class MessageBaseViewTestCase(TestCase):
         User.query.delete()
 
         u1 = User.signup("u1", "u1@email.com", "password", None)
+        u2 = User.signup("u2", "u2@email.com", "password", None)
         db.session.flush()
 
         m1 = Message(text="m1-text", user_id=u1.id)
-        db.session.add_all([m1])
+        m2 = Message(text="m2-text", user_id=u2.id)
+        db.session.add_all([m1, m2])
         db.session.commit()
 
         self.u1_id = u1.id
         self.m1_id = m1.id
+        self.u2_id = u2.id
+        self.m2_id = m2.id
 
         self.client = app.test_client()
+
+        app.config['WTF_CSRF_ENABLED'] = False
 
     def tearDown(self):
         db.session.rollback()
@@ -62,13 +68,66 @@ class MessageAddViewTestCase(MessageBaseViewTestCase):
         # Since we need to change the session to mimic logging in,
         # we need to use the changing-session trick:
         with self.client as c:
-            with c.session_transaction() as sess:
-                sess[CURR_USER_KEY] = self.u1_id
+            with c.session_transaction() as session:
+                session[CURR_USER_KEY] = self.u1_id
 
             # Now, that session setting is saved, so we can have
             # the rest of ours test
-            resp = c.post("/messages/new", data={"text": "Hello"})
+            response = c.post("/messages/new", data={"text": "Hello"})
 
-            self.assertEqual(resp.status_code, 302)
-
+            self.assertEqual(response.status_code, 302)
             Message.query.filter_by(text="Hello").one()
+            # add an assert test for the html
+
+    def test_add_message_unauthorized(self):
+        with self.client as c:
+            response = c.post("/messages/new",
+                              data={"text": "Hello"},
+                              follow_redirects=True
+                              )
+            html = response.get_data(as_text=True)
+
+            self.assertEqual(response.status_code, 200)
+            self.assertIn("Access unauthorized", html)
+
+    def test_delete_message(self):
+        with self.client as c:
+            with c.session_transaction() as session:
+                session[CURR_USER_KEY] = self.u1_id
+
+            m1 = Message.query.get(self.m1_id)
+
+            response = c.post(f'/messages/{self.m1_id}/delete',
+                              follow_redirects=True
+                              )
+            html = response.get_data(as_text=True)
+
+            self.assertEqual(response.status_code, 200)
+            self.assertNotIn(m1.text, html)
+            self.assertFalse(Message.query.filter_by(
+                text="m1-text").one_or_none())
+
+    def test_delete_message_unauthorized(self):
+        with self.client as c:
+            response = c.post(f'/messages/{self.m1_id}/delete',
+                              follow_redirects=True
+                              )
+
+            html = response.get_data(as_text=True)
+
+            self.assertEqual(response.status_code, 200)
+            self.assertIn("Access unauthorized", html)
+
+    def test_delete_message_another_user(self):
+        with self.client as c:
+            with c.session_transaction() as session:
+                session[CURR_USER_KEY] = self.u1_id
+
+            response = c.post(f'/messages/{self.m2_id}/delete',
+                              follow_redirects=True
+                              )
+
+            html = response.get_data(as_text=True)
+
+            self.assertEqual(response.status_code, 200)
+            self.assertIn("Access unauthorized", html)

@@ -95,12 +95,12 @@ class UserModelTestCase(TestCase):
         self.assertTrue(User.query.get(u3.id))
 
     def test_invalid_duplicate_username(self):
-        u3 = User.signup("u1", "u1@email.com", "password", None)
+        User.signup("u1", "u1@email.com", "password", None)
 
         self.assertRaises(IntegrityError, db.session.commit)
 
     def test_invalid_input_signup(self):
-        u4 = User.signup("u4", None, "password", None)
+        User.signup("u4", None, "password", None)
 
         self.assertRaises(IntegrityError, db.session.commit)
 
