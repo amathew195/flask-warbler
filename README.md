@@ -95,6 +95,13 @@ Choose advanced, and enter environmental variables:
     
 Lastly select 'Create Web Service'
 
+## Future features<a name="Future-features"></a>:
+* Custom 404 Page
+* Optimize queries 
+* Add change password form
+* Add admin users with additional privileges 
+* Add direct messaging
+
 ## Contributers<a name="Contributers"></a>:
 * Ashley Mathew
 * Trevor Hudson
