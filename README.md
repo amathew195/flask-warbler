@@ -20,7 +20,8 @@ Deployed app can be found [here](https://warbler-qav5.onrender.com).
 * Users must create an account to access the application. A valid email is not required, but passwords are hashed and authenticated using bcrypt. 
 * Proper authorization checks are in place to ensure only logged in users have access to specific pages.  
 * Logged in users can search for people and follow or unfollow them.
-* Logged in users can posts messages that other followers can like or unlike.
+* Logged in users can posts messages.
+* Logged in users can can like or unlike messages.
 * Logged in users can edit their own profile.
 
 ## Tech stack<a name="Tech-stack"></a>: 
@@ -37,3 +38,6 @@ Deployed app can be found [here](https://warbler-qav5.onrender.com).
 ### Database Management: 
 ![alt text](https://img.shields.io/badge/-PostgresSQL-4169E1?logo=postgresql&logoColor=white&style=for-the-badge)
 ![alt text](https://img.shields.io/badge/-SQLAlchemy-F40D12?logo=sqlalchemy&logoColor=white&style=for-the-badge)
+
+## Database Entity Relationships<a name="Database-entity-relationships"></a>: 
+![alt text](?raw=true)
