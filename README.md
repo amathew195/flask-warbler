@@ -1,6 +1,6 @@
 # Warbler
 
-Warbler is a full stack web application of a Twitter clone site. Logged in users can create new messages(posts) and share with followers. 
+Warbler is a full stack web application of a Twitter clone site. Logged in users can create new messages(posts) and share with followers.
 Users are also able to like/unlike posts and follow/unfollow other users.
 
 Deployed app can be found [here](https://warbler-qav5.onrender.com).
@@ -17,14 +17,14 @@ Deployed app can be found [here](https://warbler-qav5.onrender.com).
 
 ## Features<a name="Features"></a>:
 * Utilizes RESTful API
-* Users must create an account to access the application. A valid email is not required, but passwords are hashed and authenticated using bcrypt. 
-* Proper authorization checks are in place to ensure only logged in users have access to specific pages.  
+* Users must create an account to access the application. A valid email is not required, but passwords are hashed and authenticated using bcrypt.
+* Proper authorization checks are in place to ensure only logged in users have access to specific pages.
 * Logged in users can search for people and follow or unfollow them.
 * Logged in users can posts messages.
 * Logged in users can can like or unlike messages.
 * Logged in users can edit their own profile.
 
-## Tech stack<a name="Tech-stack"></a>: 
+## Tech stack<a name="Tech-stack"></a>:
 
 ### Backend:
 ![alt text](https://img.shields.io/badge/-Flask-000000?logo=flask&logoColor=white&style=for-the-badge)
@@ -35,9 +35,9 @@ Deployed app can be found [here](https://warbler-qav5.onrender.com).
 ![alt text](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white)
 ![alt text](https://img.shields.io/badge/-Bootstrap-7952B3?logo=bootstrap&logoColor=white&style=for-the-badge)
 
-### Database Management: 
+### Database Management:
 ![alt text](https://img.shields.io/badge/-PostgresSQL-4169E1?logo=postgresql&logoColor=white&style=for-the-badge)
 ![alt text](https://img.shields.io/badge/-SQLAlchemy-F40D12?logo=sqlalchemy&logoColor=white&style=for-the-badge)
 
-## Database Entity Relationships<a name="Database-entity-relationships"></a>: 
-![alt text](?raw=true)
+## Database Entity Relationships<a name="Database-entity-relationships"></a>:
+![alt text](https://github.com/amathew195/flask-warbler/blob/main/images/Warbler%20-Entity%20Relationship%20Diagram.jpeg?raw=true)
