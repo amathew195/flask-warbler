@@ -41,3 +41,60 @@ Deployed app can be found [here](https://warbler-qav5.onrender.com).
 
 ## Database Entity Relationships<a name="Database-entity-relationships"></a>:
 ![alt text](https://github.com/amathew195/flask-warbler/blob/main/images/Warbler%20-%20Entity%20Relationship%20Diagram(2).jpeg?raw=true)
+
+## Install<a name="Install"></a>: 
+Create Python virtual environment and activate:  
+
+    python3 -m venv venv
+    source venv/bin/activate
+
+Install dependences from requirements.txt: 
+  
+    pip install -r requirements.txt
+
+Setup the database: 
+  
+    createdb warbler
+    python seed.py
+
+Create an .env file to hold configurations: 
+    
+    SECRET_KEY=abc123
+    DATABASE_URL=postgresql:///warbler
+
+Start the server: 
+
+    flask run 
+
+## Testing<a name="Testing"></a>:
+There are four test files: two for testing the models, and two for testing the routes/view-functions:
+
+    FLASK_DEBUG=False python -m unittest <name-of-python-file>
+
+Note: We set FLASK_DEBUG=False for this command, so it doesn’t use debug mode, and therefore won’t use the Debug Toolbar during our tests. If you are having an error running tests (comment out the line in your app.py that uses the Debug Toolbar).
+
+
+## Deployment<a name="Deployment"></a>:
+In ElephantSQL, create a 'Tiny Turtle' instance and copy the URL of your new instance.
+
+Seed your database: 
+
+    pg_dump -O warbler | psql (url you copied here)
+
+In Render, create a new instance of “Web service”. 
+
+Connect to your repository and give your instance a name, which must be globally unique.
+
+Choose advanced, and enter environmental variables:
+
+    DATABASE_URL: URL from ElephantSQL
+    
+    SECRET_KEY: anything you want
+    
+    PYTHON_VERSION: latest version
+    
+Lastly select 'Create Web Service'
+
+## Contributers<a name="Contributers"></a>:
+* Ashley Mathew
+* Trevor Hudson
