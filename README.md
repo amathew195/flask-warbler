@@ -40,4 +40,4 @@ Deployed app can be found [here](https://warbler-qav5.onrender.com).
 ![alt text](https://img.shields.io/badge/-SQLAlchemy-F40D12?logo=sqlalchemy&logoColor=white&style=for-the-badge)
 
 ## Database Entity Relationships<a name="Database-entity-relationships"></a>:
-![alt text](https://github.com/amathew195/flask-warbler/blob/main/images/Warbler%20-Entity%20Relationship%20Diagram.jpeg?raw=true)
+![alt text](https://github.com/amathew195/flask-warbler/blob/main/images/Warbler%20-%20Entity%20Relationship%20Diagram(2).jpeg?raw=true)
